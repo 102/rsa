@@ -38,14 +38,14 @@ def power(g_base, a, p_mod):
 
 
 def sundaram(limit):
-    numbers = list(range(3, limit+1, 2))
-    half = limit//2
+    numbers = list(range(3, limit + 1, 2))
+    half = limit // 2
     initial = 4
 
-    for step in range(3, limit+1, 2):
+    for step in range(3, limit + 1, 2):
         for i in range(initial, half, step):
-            numbers[i-1] = 0
-        initial += 2*(step+1)
+            numbers[i - 1] = 0
+        initial += 2 * (step + 1)
 
         if initial > half:
             return [2] + list(filter(None, numbers))

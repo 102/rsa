@@ -65,10 +65,9 @@ def get_key_pair(length):
         return random.sample(list(filter(lambda x: x > start, util.get_primes_limit(stop))), 2)
 
     p, q = get_primes(length)
-    n = p*q
-    phi = (p-1) * (q-1)
+    n = p * q
+    phi = (p - 1) * (q - 1)
     e = get_e(phi)
     d = get_d(e, phi)
 
     return PublicKey(e, n), PrivateKey(d, n)
-
