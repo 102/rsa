@@ -2,6 +2,10 @@ import random
 import util
 
 
+def div(x):
+    return x // 8 - 1
+
+
 class PublicKey(object):
     def __init__(self, e, n):
         self.e = e
@@ -17,6 +21,9 @@ class PublicKey(object):
 
     def encrypt(self, message):
         return util.power(message, self.e, self.n)
+
+    def key_size(self):
+        return div(len('{:0b}'.format(self.n)))
 
 
 class PrivateKey(object):
@@ -34,6 +41,9 @@ class PrivateKey(object):
 
     def decrypt(self, message):
         return util.power(message, self.d, self.n)
+
+    def key_size(self):
+        return div(len('{:0b}'.format(self.n)))
 
 
 def get_key_pair(length):
