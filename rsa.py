@@ -8,12 +8,12 @@ class PublicKey(object):
         self.n = n
 
     def __repr__(self):
-        return '{0}:{1}'.format(self.e, self.n)
+        return '{:0x}:{:1x}'.format(self.e, self.n)
 
     @classmethod
     def fromstring(cls, string):
         e, n = string.split(':')
-        return cls(int(e), int(n))
+        return cls(int(e, 16), int(n, 16))
 
     def encrypt(self, message):
         return util.power(message, self.e, self.n)
@@ -25,12 +25,12 @@ class PrivateKey(object):
         self.n = n
 
     def __repr__(self):
-        return '{0}:{1}'.format(self.d, self.n)
+        return '{:0x}:{:1x}'.format(self.d, self.n)
 
     @classmethod
     def fromstring(cls, string):
         d, n = string.split(':')
-        return cls(int(d), int(n))
+        return cls(int(d, 16), int(n, 16))
 
     def decrypt(self, message):
         return util.power(message, self.d, self.n)
