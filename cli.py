@@ -22,7 +22,7 @@ def encode(args):
     with open(args.public_key, 'r') as f:
         public = rsa.PublicKey.fromstring(f.readline().replace('\n', ''))
     with open(args.destination_file, 'w+') as f:
-        f.write(str(public.encrypt(int(message))))
+        f.write('{:0x}'.format(public.encrypt(int(message))))
 
 
 def decode(args):
@@ -31,7 +31,7 @@ def decode(args):
     with open(args.private_key, 'r') as f:
         private = rsa.PrivateKey.fromstring(f.readline().replace('\n', ''))
     with open(args.destination_file, 'w+') as f:
-        f.write(str(private.decrypt(int(message))))
+        f.write(str(private.decrypt(int(message, 16))))
 
 
 parser = argparse.ArgumentParser()
