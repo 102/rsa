@@ -1,7 +1,7 @@
 import random
 import sys
 
-sys.setrecursionlimit(2**12)
+sys.setrecursionlimit(2 ** 12)
 
 
 def power(g_base, a, p_mod):

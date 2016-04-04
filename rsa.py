@@ -2,10 +2,6 @@ import random
 import util
 
 
-def div(x):
-    return x // 8 - 1
-
-
 class Key(object):
     def __init__(self):
         self.n = 0
@@ -31,7 +27,7 @@ class PublicKey(Key):
         return util.power(message, self.e, self.n)
 
 
-class PrivateKey(object):
+class PrivateKey(Key):
     def __init__(self, d, n):
         self.d = d
         self.n = n
