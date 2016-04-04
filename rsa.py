@@ -6,7 +6,15 @@ def div(x):
     return x // 8 - 1
 
 
-class PublicKey(object):
+class Key(object):
+    def __init__(self):
+        self.n = 0
+
+    def chunk_size(self):
+        return len('{:0b}'.format(self.n)) - 1
+
+
+class PublicKey(Key):
     def __init__(self, e, n):
         self.e = e
         self.n = n
@@ -21,9 +29,6 @@ class PublicKey(object):
 
     def encrypt(self, message):
         return util.power(message, self.e, self.n)
-
-    def key_size(self):
-        return div(len('{:0b}'.format(self.n)))
 
 
 class PrivateKey(object):
@@ -42,21 +47,19 @@ class PrivateKey(object):
     def decrypt(self, message):
         return util.power(message, self.d, self.n)
 
-    def key_size(self):
-        return div(len('{:0b}'.format(self.n)))
-
 
 def get_key_pair(length):
+    length /= 2
+
     def get_e(phi):
+        def gcd(a, b):
+            while b:
+                a, b = b, a % b
+            return a
         while True:
             x = random.randint(3, phi)
             if gcd(x, phi) == 1:
                 return x
-
-    def gcd(a, b):
-        while b:
-            a, b = b, a % b
-        return a
 
     p, q = util.get_primes(length)
     n = p * q
