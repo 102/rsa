@@ -1,7 +1,12 @@
 import random
 import util
 from functools import reduce
+from functools import partial
 from collections import deque
+
+
+to_bin = partial(int, base=2)
+to_hex = partial(int, base=16)
 
 
 class Key(object):
@@ -22,7 +27,7 @@ class PublicKey(Key):
     @classmethod
     def fromstring(cls, string):
         e, n = string.split(':')
-        return cls(int(e, 16), int(n, 16))
+        return cls(to_hex(e), to_hex(n))
 
     def __encrypt_chunk(self, message):
         return util.power(message, self.e, self.n)
@@ -36,7 +41,7 @@ class PublicKey(Key):
             chunked_message.append(message[i:i + self.chunk_size()])
         result = ''
         for message in chunked_message:
-            x = '{:0b}'.format(self.__encrypt_chunk(int(message, 2)))
+            x = '{:0b}'.format(self.__encrypt_chunk(to_bin(message)))
             while not len(x) % (self.chunk_size() + 1) == 0:
                 x = '0' + x
             result += x
@@ -56,7 +61,7 @@ class PrivateKey(Key):
     @classmethod
     def fromstring(cls, string):
         d, n = string.split(':')
-        return cls(int(d, 16), int(n, 16))
+        return cls(to_hex(d), to_hex(n))
 
     def __decrypt_chunk(self, message):
         return util.power(message, self.d, self.n)
@@ -70,11 +75,11 @@ class PrivateKey(Key):
 
         num = ''
         for message in chunked_message:
-            x = '{:0b}'.format(self.__decrypt_chunk(int(message, 2)))
+            x = '{:0b}'.format(self.__decrypt_chunk(to_bin(message)))
             while not len(x) % chunk_size == 0:
                 x = '0' + x
             num += x
-        num = int(num, 2)
+        num = to_bin(num)
         result = ''
         while num:
             result = chr(num % 0x100) + result
