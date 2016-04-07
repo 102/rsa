@@ -1,5 +1,6 @@
 import argparse
 import rsa
+from functools import reduce
 
 """
     python3 cli.py -f key generate -l 8
@@ -19,11 +20,11 @@ def generate(args):
 def encode(args):
     with open(args.public_key, 'r') as f:
         public = rsa.PublicKey.fromstring(f.readline().replace('\n', ''))
-    with open(args.file, 'r') as f:
-        message = f.read()
+    with open(args.file, 'rb') as f:
+        message = bytearray(f.read())
     with open(args.destination_file, 'wb') as f:
         result = public.encrypt(message)
-        f.write(bytearray([int(result[i:i+8], 2) for i in range(0, len(result), 8)]))
+        f.write(result)
 
 
 def decode(args):

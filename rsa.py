@@ -33,19 +33,28 @@ class PublicKey(Key):
         return util.power(message, self.e, self.n)
 
     def encrypt(self, message):
+        message = reduce(lambda acc, byte: (acc << 8) + byte, message, 0)
         chunk_size = self.chunk_size()
-        message = '{:0b}'.format(reduce(lambda acc, char: (acc << 8) + ord(char), message, 0))
-        while not len(message) % chunk_size == 0:
+        chunked_message = []
+        message = bin(message)[2:]
+        while len(message) % chunk_size != 0:
             message = '0' + message
-        chunked_message = reduce(lambda acc, i: acc.append(message[i:i + chunk_size]) or acc,
-                                 range(0, len(message), chunk_size), [])
-        result = ''
-        for message in chunked_message:
-            x = '{:0b}'.format(self.__encrypt_chunk(to_bin(message)))
-            while not len(x) % (chunk_size + 1) == 0:
-                x = '0' + x
-            result += x
-        return result
+        for i in range(0, len(message), chunk_size):
+            chunked_message.append(message[i:i + chunk_size])
+        chunked_message = map(lambda x: self.__encrypt_chunk(int(x, 2)), chunked_message)
+        result = []
+        for m in chunked_message:
+            m = '{:0b}'.format(m)
+            while len(m) % chunk_size != 1:
+                m = '0' + m
+            result.append(m)
+        result = ''.join(result)
+        result = int(result, 2)
+        d = deque()
+        while result:
+            d.appendleft(result % 0x100)
+            result >>= 8
+        return bytearray(d)
 
 
 class PrivateKey(Key):
