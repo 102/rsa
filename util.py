@@ -1,5 +1,6 @@
 import random
 import sys
+from decimal import Decimal
 
 sys.setrecursionlimit(2 ** 12)
 
@@ -51,8 +52,9 @@ def is_probable_prime(n):
 
 
 def get_primes(length):
-    start = 2 ** (length - 1)
-    stop = 2 ** length - 1
+    length = Decimal(length)
+    start = Decimal(2 ** (length - 1))
+    stop = Decimal(2) ** length - 1
     counter = 0
     primes = []
     while len(primes) < 2:
