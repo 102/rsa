@@ -33,20 +33,18 @@ class PublicKey(Key):
         return util.power(message, self.e, self.n)
 
     def encrypt(self, message):
+        chunk_size = self.chunk_size()
         message = '{:0b}'.format(reduce(lambda acc, char: (acc << 8) + ord(char), message, 0))
-        while not len(message) % self.chunk_size() == 0:
+        while not len(message) % chunk_size == 0:
             message = '0' + message
-        chunked_message = []
-        for i in range(0, len(message), self.chunk_size()):
-            chunked_message.append(message[i:i + self.chunk_size()])
+        chunked_message = reduce(lambda acc, i: acc.append(message[i:i + chunk_size]) or acc,
+                                 range(0, len(message), chunk_size), [])
         result = ''
         for message in chunked_message:
             x = '{:0b}'.format(self.__encrypt_chunk(to_bin(message)))
-            while not len(x) % (self.chunk_size() + 1) == 0:
+            while not len(x) % (chunk_size + 1) == 0:
                 x = '0' + x
             result += x
-        while not len(result) % 8 == 0:
-            result = '0' + result
         return result
 
 
@@ -70,21 +68,22 @@ class PrivateKey(Key):
         chunk_size = self.chunk_size()
 
         chunked_message = deque()
-        for i in range(0, len(message), chunk_size + 1):
-            chunked_message.append(message[i:i + chunk_size + 1])
+        for i in range(len(message), 0, -chunk_size - 1):
+            chunked_message.appendleft(message[i-chunk_size-1:i])
 
-        num = ''
+        result = []
         for message in chunked_message:
             x = '{:0b}'.format(self.__decrypt_chunk(to_bin(message)))
             while not len(x) % chunk_size == 0:
                 x = '0' + x
-            num += x
-        num = to_bin(num)
-        result = ''
-        while num:
-            result = chr(num % 0x100) + result
-            num >>= 8
-        return result
+            result.append(x)
+        result = int(''.join(result), 2)
+        _r = deque()
+        while result:
+            x = result % 0x100
+            _r.appendleft(x)
+            result >>= 8
+        return bytearray(_r)
 
 
 def get_key_pair(length):

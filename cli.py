@@ -31,7 +31,7 @@ def decode(args):
         private = rsa.PrivateKey.fromstring(f.readline().replace('\n', ''))
     with open(args.file, 'rb') as f:
         message = ''.join(map(lambda x: '{:08b}'.format(x), f.read()))
-    with open(args.destination_file, 'w') as f:
+    with open(args.destination_file, 'wb') as f:
         result = private.decrypt(message)
         f.write(result)
 
