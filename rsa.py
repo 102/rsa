@@ -39,10 +39,9 @@ class PublicKey(Key):
         message = reduce(lambda acc, byte: (acc << 8) + byte, message, 0)
         result = 0
         for i in range(0, ceil(log(message, 2)), chunk_size):
-            m = message & chunk_map
+            m = self.__encrypt_chunk(message & chunk_map)
             message >>= chunk_size
-            m = self.__encrypt_chunk(m)
-            result = (result << chunk_size) + m
+            result = (result << chunk_size + 1) + m
         d = deque()
         while result:
             d.appendleft(result & 0xff)
@@ -72,10 +71,9 @@ class PrivateKey(Key):
         message = reduce(lambda acc, byte: (acc << 8) + byte, message, 0)
         result = 0
         for i in range(0, ceil(log(message, 2)), chunk_size):
-            m = message & chunk_map
+            m = self.__decrypt_chunk(message & chunk_map)
             message >>= chunk_size
-            m = self.__decrypt_chunk(m)
-            result = (result << chunk_size) + m
+            result = (result << chunk_size - 1) + m
         d = deque()
         while result:
             d.appendleft(result & 0xff)
