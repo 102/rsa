@@ -45,7 +45,7 @@ class PublicKey(Key):
             result = (result << chunk_size) + m
         d = deque()
         while result:
-            d.appendleft(result % 0x100)
+            d.appendleft(result & 0xff)
             result >>= 8
         return bytearray(d)
 
@@ -67,26 +67,20 @@ class PrivateKey(Key):
         return util.power(message, self.d, self.n)
 
     def decrypt(self, message):
-        chunk_size = self.chunk_size()
-
-        chunked_message = deque()
-        for i in range(len(message), 0, -chunk_size - 1):
-            chunked_message.appendleft(message[i-chunk_size-1:i])
-        chunked_message = filter(lambda msg: not msg == '', chunked_message)
-
-        result = []
-        for message in chunked_message:
-            x = '{:0b}'.format(self.__decrypt_chunk(to_bin(message)))
-            while not len(x) % chunk_size == 0:
-                x = '0' + x
-            result.append(x)
-        result = int(''.join(result), 2)
-        _r = deque()
+        chunk_size = self.chunk_size() + 1
+        chunk_map = reduce(lambda x, y: 2 ** y + x, range(0, chunk_size), 0)
+        message = reduce(lambda acc, byte: (acc << 8) + byte, message, 0)
+        result = 0
+        for i in range(0, ceil(log(message, 2)), chunk_size):
+            m = message & chunk_map
+            message >>= chunk_size
+            m = self.__decrypt_chunk(m)
+            result = (result << chunk_size) + m
+        d = deque()
         while result:
-            x = result % 0x100
-            _r.appendleft(x)
+            d.appendleft(result & 0xff)
             result >>= 8
-        return bytearray(_r)
+        return bytearray(d)
 
 
 def get_key_pair(length):
