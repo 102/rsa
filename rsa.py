@@ -42,7 +42,7 @@ class PublicKey(Key):
             m = message & chunk_map
             message >>= chunk_size
             m = self.__encrypt_chunk(m)
-            result = (result << chunk_size) + m
+            result = (result << chunk_size + 1) + m
         d = deque()
         while result:
             d.appendleft(result & 0xff)
@@ -75,7 +75,7 @@ class PrivateKey(Key):
             m = message & chunk_map
             message >>= chunk_size
             m = self.__decrypt_chunk(m)
-            result = (result << chunk_size) + m
+            result = (result << chunk_size - 1) + m
         d = deque()
         while result:
             d.appendleft(result & 0xff)
