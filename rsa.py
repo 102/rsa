@@ -79,6 +79,7 @@ class PrivateKey(Key):
         chunked_message = deque()
         for i in range(len(message), 0, -chunk_size - 1):
             chunked_message.appendleft(message[i-chunk_size-1:i])
+        chunked_message = filter(lambda msg: not msg == '', chunked_message)
 
         result = []
         for message in chunked_message:
