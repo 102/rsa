@@ -3,6 +3,7 @@ import util
 from functools import reduce
 from functools import partial
 from collections import deque
+from math import log, ceil
 
 
 to_bin = partial(int, base=2)
@@ -33,23 +34,15 @@ class PublicKey(Key):
         return util.power(message, self.e, self.n)
 
     def encrypt(self, message):
-        message = reduce(lambda acc, byte: (acc << 8) + byte, message, 0)
         chunk_size = self.chunk_size()
-        chunked_message = []
-        message = bin(message)[2:]
-        while len(message) % chunk_size != 0:
-            message = '0' + message
-        for i in range(0, len(message), chunk_size):
-            chunked_message.append(message[i:i + chunk_size])
-        chunked_message = map(lambda x: self.__encrypt_chunk(int(x, 2)), chunked_message)
-        result = []
-        for m in chunked_message:
-            m = '{:0b}'.format(m)
-            while len(m) % chunk_size != 1:
-                m = '0' + m
-            result.append(m)
-        result = ''.join(result)
-        result = int(result, 2)
+        chunk_map = reduce(lambda x, y: 2 ** y + x, range(0, chunk_size), 0)
+        message = reduce(lambda acc, byte: (acc << 8) + byte, message, 0)
+        result = 0
+        for i in range(0, ceil(log(message, 2)), chunk_size):
+            m = message & chunk_map
+            message >>= chunk_size
+            m = self.__encrypt_chunk(m)
+            result = (result << chunk_size) + m
         d = deque()
         while result:
             d.appendleft(result % 0x100)
