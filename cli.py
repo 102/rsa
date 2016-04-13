@@ -1,6 +1,5 @@
 import argparse
 import rsa
-from functools import reduce
 
 """
     python3 cli.py -f key generate -l 8
